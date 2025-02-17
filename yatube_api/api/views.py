@@ -1,14 +1,14 @@
-from rest_framework import viewsets, permissions, filters
+from django.shortcuts import get_object_or_404
+from rest_framework import filters, permissions,\
+    status, viewsets
 from rest_framework.exceptions import PermissionDenied,\
     ValidationError
-from posts.models import Post, Comment,\
-    Follow, Group, User
-from .serializers import PostSerializer,\
-    CommentSerializer, FollowSerializer, GroupSerializer
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from rest_framework import status
+from posts.models import Comment, Follow,\
+    Group, Post, User
+from .serializers import CommentSerializer,\
+    FollowSerializer, GroupSerializer, PostSerializer
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -122,4 +122,3 @@ class GroupViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-
