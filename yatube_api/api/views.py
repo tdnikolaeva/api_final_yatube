@@ -16,9 +16,11 @@ class PostViewSet(viewsets.ModelViewSet):
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     pagination_class = PageNumberPagination
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['text', 'author__username']
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
+        queryset = self.filter_queryset(self.get_queryset())
         limit = request.query_params.get('limit')
         offset = request.query_params.get('offset')
         if limit is not None and offset is not None:
@@ -55,11 +57,14 @@ class PostViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['text', 'author__username']
 
     def get_queryset(self):
         post_id = self.kwargs.get('post_id')
         post = get_object_or_404(Post, pk=post_id)
-        return Comment.objects.filter(post=post)
+        queryset = Comment.objects.filter(post=post)
+        return self.filter_queryset(queryset)
 
     def perform_create(self, serializer):
         post_id = self.kwargs.get('post_id')
@@ -94,7 +99,8 @@ class FollowViewSet(viewsets.ModelViewSet):
     search_fields = ['following__username', 'user__username']
 
     def get_queryset(self):
-        return Follow.objects.filter(user=self.request.user)
+        queryset = Follow.objects.filter(user=self.request.user)
+        return self.filter_queryset(queryset)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
