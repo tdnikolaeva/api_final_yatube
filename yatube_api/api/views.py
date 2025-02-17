@@ -6,7 +6,7 @@ from rest_framework.exceptions import PermissionDenied,\
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from posts.models import Comment, Follow,\
-    Group, Post, User
+    Group, Post
 from .serializers import CommentSerializer,\
     FollowSerializer, GroupSerializer, PostSerializer
 
@@ -111,8 +111,10 @@ class FollowViewSet(viewsets.ModelViewSet):
             return Response(serializer.data,
                             status=status.HTTP_201_CREATED,
                             headers=headers)
-        except Exception as e:
-            raise ValidationError({'detail': 'You are already following this user.'})
+        except Exception:
+            raise ValidationError({
+                'detail': 'You are already following this user.'
+            })
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
